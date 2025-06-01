@@ -29,9 +29,15 @@ Este projeto tem como objetivo desenvolver um sistema para que os próprios alun
    - Para o backend (Node.js + Express):  
      `cd src/backend`  
      `npm install`
+     `npm install express`
+     `npm install cors`
+     `npm install mysql2`
+     `npm install dotenv`
+     `npm install bcrypt`
    - Para o frontend (React):  
      `cd ../../frontend`  
      `npm install`
+     `npm install react-router-dom axios`
 
 4. Rodar o sistema:
    - Backend:  
