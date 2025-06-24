@@ -50,7 +50,7 @@ export default function AuthPage() {
           placeholder="RA"
           value={RA}
           onChange={(e) => setRa(e.target.value)}
-          style={{ display: 'block', margin: '10px 0', padding: 10, fontSize: 16 }}
+          style={{ display: 'block', margin: '10px 0', padding: 10, fontSize: 16, outline: 'none' }}
         />
 
         {!isLogin && (
@@ -59,7 +59,7 @@ export default function AuthPage() {
               placeholder="Nome"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              style={{ display: 'block', margin: '10px 0', padding: 10, fontSize: 16 }}
+              style={{ display: 'block', margin: '10px 0', padding: 10, fontSize: 16, outline: 'none' }}
             />
             <input
               placeholder="Email"
@@ -69,7 +69,7 @@ export default function AuthPage() {
                 setEmail(val);
                 setEmailError(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) ? 'Email inválido' : '');
               }}
-              style={{ display: 'block', margin: '10px 0', padding: 10, fontSize: 16 }}
+              style={{ display: 'block', margin: '10px 0', padding: 10, fontSize: 16, outline: 'none' }}
             />
             {emailError && <span style={{ color: 'red' }}>{emailError}</span>}
           </>
@@ -80,7 +80,7 @@ export default function AuthPage() {
           type="password"
           value={senha}
           onChange={(e) => setSenha(e.target.value)}
-          style={{ display: 'block', margin: '10px 0', padding: 10, fontSize: 16 }}
+          style={{ display: 'block', margin: '10px 0', padding: 10, fontSize: 16, outline: 'none' }}
         />
 
         <div style={{ display: 'flex', justifyContent: 'center' }}>
