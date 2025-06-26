@@ -23,7 +23,6 @@ export default function ModalCriarOficina({ onClose }) {
         return;
       }
 
-      console.log('Oficina criada:', data);
       alert('Oficina criada com sucesso!');
       onClose();
     } catch (error) {

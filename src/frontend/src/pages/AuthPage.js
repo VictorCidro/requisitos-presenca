@@ -110,7 +110,7 @@ export default function AuthPage() {
             width: '100%',
             background: 'transparent',
             border: 'none',
-            color: '#28137d;',
+            color: '#28137d',
             cursor: 'pointer',
             fontSize: 14,
             textDecoration: 'underline'
