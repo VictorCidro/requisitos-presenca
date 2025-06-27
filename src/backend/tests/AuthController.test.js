@@ -2,6 +2,14 @@ const authController = require('../controllers/authController');
 const db = require('../models/db');
 const bcrypt = require('bcrypt');
 
+jest.mock('mysql2', () => ({
+  createConnection: jest.fn(() => ({
+    connect: jest.fn(),
+    query: jest.fn(),
+    end: jest.fn(),
+  })),
+}));
+
 jest.mock('../models/db');
 jest.mock('bcrypt');
 
@@ -110,75 +118,78 @@ describe('AuthController', () => {
   });
 
   describe('getOficinas', () => {
-    it('deve retornar lista de oficinas', () => {
+    it('deve retornar lista de oficinas', async () => {
       const mockResults = [{ id: 1, nome: 'Oficina 1' }];
       db.query.mockImplementation((sql, callback) => callback(null, mockResults));
 
-      authController.getOficinas(req, res);
+      await authController.getOficinas(req, res);
 
       expect(db.query).toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(mockResults);
     });
 
-    it('deve retornar erro 500 se banco falhar', () => {
+    it('deve retornar erro 500 se banco falhar', async () => {
       db.query.mockImplementation((sql, callback) => callback(new Error('Erro'), null));
 
-      authController.getOficinas(req, res);
+      await authController.getOficinas(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Erro ao buscar oficinas' }));
     });
   });
 
-
   describe('criarOficina', () => {
-    it('deve retornar 400 se faltar algum campo', () => {
+    it('deve retornar 400 se faltar algum campo', async () => {
       req.body = { nomeOficina: '', codigo: 'C1', professor: 'Prof' };
-      authController.criarOficina(req, res);
+
+      await authController.criarOficina(req, res);
+
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({ message: 'Todos os campos são obrigatórios.' });
     });
 
-    it('deve retornar 409 se código da oficina já existir', () => {
+    it('deve retornar 409 se código da oficina já existir', async () => {
       req.body = { nomeOficina: 'Oficina X', codigo: 'C1', professor: 'Prof' };
       db.query.mockImplementationOnce((sql, params, callback) => callback(null, [{ id: 1 }]));
 
-      authController.criarOficina(req, res);
+      await authController.criarOficina(req, res);
 
       expect(db.query).toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(409);
       expect(res.json).toHaveBeenCalledWith({ message: 'Código da oficina já existe.' });
     });
 
-    it('deve criar oficina com sucesso', () => {
+    it('deve criar oficina com sucesso', async () => {
       req.body = { nomeOficina: 'Oficina X', codigo: 'C1', professor: 'Prof' };
-      db.query.mockImplementationOnce((sql, params, callback) => callback(null, []));
-      db.query.mockImplementationOnce((sql, params, callback) => callback(null, { insertId: 123 }));
+      db.query
+        .mockImplementationOnce((sql, params, callback) => callback(null, [])) // verificação de código
+        .mockImplementationOnce((sql, params, callback) => callback(null, { insertId: 123 })); // inserção
 
-      authController.criarOficina(req, res);
+      await authController.criarOficina(req, res);
 
       expect(db.query).toHaveBeenCalledTimes(2);
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith({ message: 'Oficina criada com sucesso', oficinaId: 123 });
     });
 
-    it('deve retornar erro 500 se erro ao verificar código', () => {
+    it('deve retornar erro 500 se erro ao verificar código', async () => {
       req.body = { nomeOficina: 'Oficina X', codigo: 'C1', professor: 'Prof' };
       db.query.mockImplementationOnce((sql, params, callback) => callback(new Error('Erro'), null));
 
-      authController.criarOficina(req, res);
+      await authController.criarOficina(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Erro ao verificar o código.' }));
     });
 
-    it('deve retornar erro 500 se erro ao criar oficina', () => {
+    it('deve retornar erro 500 se erro ao criar oficina', async () => {
       req.body = { nomeOficina: 'Oficina X', codigo: 'C1', professor: 'Prof' };
-      db.query.mockImplementationOnce((sql, params, callback) => callback(null, []));
-      db.query.mockImplementationOnce((sql, params, callback) => callback(new Error('Erro'), null));
+      db.query
+        .mockImplementationOnce((sql, params, callback) => callback(null, []))
+        .mockImplementationOnce((sql, params, callback) => callback(new Error('Erro'), null));
 
-      authController.criarOficina(req, res);
+      await authController.criarOficina(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Erro ao criar oficina.' }));
